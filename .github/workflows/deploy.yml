@@ -1,0 +1,30 @@
+# .github/workflows/deploy.yml
+name: Deploy na AWS via OIDC
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  id-token: write       # Necessário para OIDC
+  contents: read        # Para acessar o repositório
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Configurar credenciais AWS com OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::202853071953:role/GITHUB_DEPLOY_ROLE
+          aws-region: us-east-1 # Ou a região onde está seu projeto
+
+      - name: Verificar identidade atual da AWS
+        run: aws sts get-caller-identity
+
+      # Coloque aqui seus próximos passos (ex: deploy, terraform, etc.)
