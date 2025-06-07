@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 
 app = Flask(__name__)
-app.secret_key = 'chave-secreta'  # Necessário para flash messages
+app.secret_key = 'chave-secreta'
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -14,3 +14,6 @@ def login():
             flash('Credenciais inválidas')
             return redirect(url_for('login'))
     return render_template('login.html')
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=80)
