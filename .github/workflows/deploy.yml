@@ -14,7 +14,7 @@ env:
   AWS_REGION: us-east-1
   ECR_REPOSITORY: cloudsecureapp
   ECS_CLUSTER_NAME: cloudsecureapp
-  ECS_SERVICE_NAME: cloudsecureapp-service
+  ECS_SERVICE_NAME: cloudsecureapp
   ECS_TASK_DEFINITION: cloudsecureapp
 
 jobs:
