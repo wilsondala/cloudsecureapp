@@ -13,8 +13,9 @@ env:
   AWS_ACCOUNT_ID: 202853071953
   AWS_REGION: us-east-1
   ECR_REPOSITORY: cloudsecureapp
-  ECS_CLUSTER_NAME: cloudsecureapp-cluster     # ajuste se seu cluster tem outro nome
-  ECS_SERVICE_NAME: cloudsecureapp-service     # ajuste se seu service tem outro nome
+  ECS_CLUSTER_NAME: cloudsecureapp-cluster
+  ECS_SERVICE_NAME: cloudsecureapp-service
+  ECS_TASK_DEFINITION: cloudsecureapp
 
 jobs:
   deploy:
@@ -49,16 +50,13 @@ jobs:
 
       - name: Atualizar serviço ECS para usar a nova imagem
         run: |
-          # Obter a task definition atual
-          TASK_DEF_JSON=$(aws ecs describe-task-definition --task-definition $ECS_SERVICE_NAME)
+          TASK_DEF_JSON=$(aws ecs describe-task-definition --task-definition $ECS_TASK_DEFINITION)
 
-          # Atualizar a imagem do container no JSON da task definition
           NEW_TASK_DEF_JSON=$(echo $TASK_DEF_JSON | jq --arg IMAGE "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY:latest" \
             '.taskDefinition | 
             .containerDefinitions[0].image = $IMAGE |
             {family: .family, containerDefinitions: .containerDefinitions, cpu: .cpu, memory: .memory, networkMode: .networkMode, requiresCompatibilities: .requiresCompatibilities, executionRoleArn: .executionRoleArn}' )
 
-          # Registrar a nova task definition com a imagem atualizada
           NEW_TASK_DEF_ARN=$(aws ecs register-task-definition \
             --cli-input-json "$NEW_TASK_DEF_JSON" \
             --query 'taskDefinition.taskDefinitionArn' \
@@ -66,7 +64,6 @@ jobs:
 
           echo "Nova task definition registrada: $NEW_TASK_DEF_ARN"
 
-          # Atualizar o serviço ECS para usar a nova task definition
           aws ecs update-service --cluster $ECS_CLUSTER_NAME --service $ECS_SERVICE_NAME --task-definition $NEW_TASK_DEF_ARN
 
           echo "Serviço ECS atualizado com nova task definition"
