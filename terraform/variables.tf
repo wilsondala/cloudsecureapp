@@ -16,6 +16,12 @@ variable "ecr_repo_name" {
   default     = "cloudsecureapp"
 }
 
+variable "image_tag" {
+  description = "Tag da imagem Docker no ECR"
+  type        = string
+  default     = "latest"
+}
+
 variable "subnet_ids" {
   description = "List of subnet IDs for ECS service"
   type        = list(string)
@@ -24,4 +30,24 @@ variable "subnet_ids" {
 variable "security_group_ids" {
   description = "List of security group IDs to associate with the ECS service"
   type        = list(string)
+}
+
+variable "vpc_id" {
+  description = "ID da VPC onde os recursos serão provisionados"
+  type        = string
+}
+
+variable "public_subnet_ids" {
+  description = "Lista de subnets públicas onde o ALB será criado"
+  type        = list(string)
+}
+
+variable "alb_security_group_ids" {
+  description = "Lista de SGs para o ALB"
+  type        = list(string)
+}
+
+variable "ecs_cluster_name" {
+  description = "Nome do ECS cluster"
+  type        = string
 }

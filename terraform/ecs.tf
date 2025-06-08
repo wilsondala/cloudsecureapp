@@ -1,7 +1,3 @@
-provider "aws" {
-  region = var.aws_region
-}
-
 resource "aws_ecr_repository" "app" {
   name         = var.ecr_repo_name
   force_delete = true
@@ -46,12 +42,12 @@ resource "aws_ecs_task_definition" "app" {
 
   container_definitions = jsonencode([
     {
-      name  = var.app_name
-      image = "${aws_ecr_repository.app.repository_url}:latest"
+      name      = var.app_name
+      image     = "${aws_ecr_repository.app.repository_url}:${var.image_tag}"
       essential = true
       portMappings = [{
-        containerPort = 5000
-        hostPort      = 5000
+        containerPort = 80
+        hostPort      = 80
       }]
       logConfiguration = {
         logDriver = "awslogs"
@@ -63,29 +59,4 @@ resource "aws_ecs_task_definition" "app" {
       }
     }
   ])
-}
-
-resource "aws_ecs_service" "app" {
-  name            = "${var.app_name}-service"
-  cluster         = aws_ecs_cluster.app.id
-  task_definition = aws_ecs_task_definition.app.arn
-  desired_count   = 1
-  launch_type     = "FARGATE"
-
-  load_balancer {
-    target_group_arn = aws_lb_target_group.app.arn
-    container_name   = var.app_name
-    container_port   = 5000
-  }
-
-  network_configuration {
-    subnets         = var.subnet_ids
-    security_groups = var.security_group_ids
-    assign_public_ip = true
-  }
-
-  depends_on = [
-    aws_lb_listener.app,
-    aws_iam_role_policy_attachment.ecs_task_execution_attach
-  ]
 }

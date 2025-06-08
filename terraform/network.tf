@@ -101,3 +101,28 @@ resource "aws_security_group" "app_sg" {
     Name = "${var.app_name}-sg"
   }
 }
+
+resource "aws_security_group" "alb_sg" {
+  name        = "${var.app_name}-alb-sg"
+  description = "Permite trafego HTTP de entrada para o ALB"
+  vpc_id      = aws_vpc.main.id
+
+  ingress {
+    description = "Permitir HTTP"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "${var.app_name}-alb-sg"
+  }
+}
